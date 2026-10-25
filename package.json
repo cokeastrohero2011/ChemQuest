@@ -1,0 +1,13 @@
+{
+  "name": "gamified-homework-tracker",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MVP single-page React frontend for the Gamified Homework Tracker",
+  "scripts": {
+    "start": "echo \"Phase 1 placeholder: configure React dev server in Phase 2\"",
+    "build": "echo \"Phase 1 placeholder: run react-scripts build in Phase 2\"",
+    "test": "echo \"Phase 1 placeholder: add tests in Phase 2\""
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

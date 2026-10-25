@@ -1,0 +1,507 @@
+<!-- ===========================
+File: templates/index.html
+Serve at: https://2no.co/24ngQ8
+=========================== -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TGA ChemQuest: Molecular Arena</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            background: radial-gradient(1200px 800px at 20% 20%, rgba(0, 255, 204, 0.08), transparent 60%),
+                        radial-gradient(1000px 700px at 80% 70%, rgba(138, 43, 226, 0.08), transparent 60%),
+                        radial-gradient(900px 900px at 50% 50%, rgba(0, 150, 255, 0.06), transparent 60%),
+                        #060a1e;
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+            overflow-x: hidden;
+            position: relative;
+        }
+        /* Animated neon nebula blobs */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: -20% -20% -20% -20%;
+            background:
+                radial-gradient(40% 30% at 20% 25%, rgba(0, 255, 204, 0.20), transparent 60%),
+                radial-gradient(35% 45% at 75% 70%, rgba(138, 43, 226, 0.20), transparent 65%),
+                radial-gradient(30% 30% at 50% 50%, rgba(0, 150, 255, 0.18), transparent 70%);
+            filter: blur(60px);
+            animation: floatBlobs 18s ease-in-out infinite;
+            z-index: -2;
+            pointer-events: none;
+        }
+        /* Subtle retro grid scanlines */
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05), rgba(0,0,0,0) 60%) center/200% 200% no-repeat,
+                repeating-linear-gradient( to bottom,
+                    rgba(255,255,255,0.03) 0px,
+                    rgba(255,255,255,0.03) 1px,
+                    rgba(0,0,0,0) 2px,
+                    rgba(0,0,0,0) 6px
+                );
+            mix-blend-mode: overlay;
+            animation: gridDrift 24s linear infinite;
+            z-index: -1;
+            pointer-events: none;
+        }
+        @keyframes floatBlobs {
+            0%   { transform: translate3d(0px, 0px, 0) scale(1); }
+            50%  { transform: translate3d(2vw, -2vh, 0) scale(1.05); }
+            100% { transform: translate3d(0px, 0px, 0) scale(1); }
+        }
+        @keyframes gridDrift {
+            0%   { background-position: center 0px, 0 0; }
+            100% { background-position: center 300px, 0 300px; }
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; }
+        header { text-align: center; color: #00ffcc; margin-bottom: 30px; text-shadow: 0 0 20px rgba(0, 255, 204, 0.3); }
+        /* Logo styles (add your logo image below the comment in HTML) */
+        .logo-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .logo {
+            height: 80px;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 0 12px rgba(0, 255, 204, 0.35));
+        }
+
+        h1 {
+            font-size: 3em; font-weight: 700; letter-spacing: 3px; margin-bottom: 10px;
+            background: linear-gradient(135deg, #00ffcc 0%, #00a8ff 35%, #8a2be2 70%, #00ffcc 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            text-shadow:
+                0 0 8px rgba(0, 255, 204, 0.35),
+                0 0 18px rgba(0, 168, 255, 0.25),
+                0 0 28px rgba(138, 43, 226, 0.22);
+            background-size: 200% 200%;
+            animation: shineTitle 8s linear infinite;
+        }
+        @keyframes shineTitle {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .subtitle { font-size: 1.1em; opacity: 0.7; color: #a0a0a0; letter-spacing: 1px; }
+        .search-section {
+            background: rgba(20, 25, 45, 0.8);
+            border: 1px solid rgba(0, 255, 204, 0.2);
+            border-radius: 15px; padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 255, 204, 0.1); backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+        }
+        .search-box { display: flex; gap: 15px; margin-bottom: 15px; }
+        input[type="text"] {
+            flex: 1; padding: 15px 20px; font-size: 1.1em;
+            background: rgba(10, 15, 35, 0.9); border: 2px solid rgba(0, 255, 204, 0.3);
+            border-radius: 10px; color: #00ffcc; font-family: 'JetBrains Mono', monospace; transition: all 0.3s;
+        }
+        input[type="text"]::placeholder { color: rgba(160, 160, 160, 0.5); }
+        input[type="text"]:focus { outline: none; border-color: #00ffcc; box-shadow: 0 0 20px rgba(0, 255, 204, 0.3); }
+        button {
+            padding: 15px 40px; font-size: 1.1em;
+            background: linear-gradient(135deg, #00ffcc 0%, #00a8ff 100%); color: #0a0e27;
+            border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s;
+            font-weight: 700; font-family: 'JetBrains Mono', monospace; box-shadow: 0 5px 20px rgba(0, 255, 204, 0.3);
+        }
+        button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0, 255, 204, 0.5); }
+        button:disabled { opacity: 0.4; cursor: not-allowed; }
+        .examples { display: flex; gap: 10px; flex-wrap: wrap; }
+        .example-btn {
+            padding: 8px 16px; font-size: 0.9em; background: rgba(0, 255, 204, 0.1);
+            color: #00ffcc; border: 1px solid rgba(0, 255, 0, 0.3); border-radius: 20px; cursor: pointer;
+            transition: all 0.2s; font-family: 'JetBrains Mono', monospace;
+        }
+        .example-btn:hover { background: rgba(0, 255, 204, 0.2); border-color: #00ffcc; transform: translateY(-1px); box-shadow: 0 5px 15px rgba(0, 255, 204, 0.3); }
+        .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+        @media (max-width: 968px) { .content-grid { grid-template-columns: 1fr; } }
+        .panel {
+            background: rgba(20, 25, 45, 0.8); border: 1px solid rgba(0, 255, 204, 0.2);
+            border-radius: 15px; padding: 30px; box-shadow: 0 10px 40px rgba(0, 255, 204, 0.1); backdrop-filter: blur(10px);
+        }
+        .panel h2 { color: #00ffcc; margin-bottom: 20px; font-size: 1.5em; font-weight: 700; text-shadow: 0 0 10px rgba(0, 255, 204, 0.3); }
+        #canvas-container {
+            width: 100%; height: 500px; background: rgba(10, 15, 35, 0.9);
+            border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 10px; position: relative; overflow: hidden;
+            box-shadow: inset 0 0 30px rgba(0, 255, 204, 0.05);
+        }
+        #molecule-canvas { width: 100%; height: 100%; cursor: grab; }
+        #molecule-canvas:active { cursor: grabbing; }
+        .loading { display: none; text-align: center; padding: 40px; color: #00ffcc; }
+        .loading.active { display: block; }
+        .spinner {
+            border: 4px solid rgba(0, 255, 204, 0.1); border-top: 4px solid #00ffcc; border-radius: 50%;
+            width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .formula { font-size: 1.8em; color: #00ffcc; margin-bottom: 20px; font-weight: 700; font-family: 'JetBrains Mono', monospace; text-shadow: 0 0 15px rgba(0, 255, 204, 0.4); }
+        .explanation { line-height: 1.8; color: #b0b0b0; }
+        .explanation h3 { color: #00a8ff; margin-top: 20px; margin-bottom: 10px; font-size: 1.2em; text-shadow: 0 0 10px rgba(0, 168, 255, 0.3); }
+        .explanation p { margin-bottom: 15px; }
+        .error { background: rgba(255, 50, 80, 0.1); color: #ff3250; padding: 15px; border-radius: 10px; border: 1px solid rgba(255, 50, 80, 0.3); display: none; }
+        .error.active { display: block; }
+        .controls {
+            position: absolute; top: 10px; right: 10px; background: rgba(20, 25, 45, 0.9);
+            border: 1px solid rgba(0, 255, 204, 0.3); padding: 10px; border-radius: 8px; display: flex; gap: 5px;
+        }
+        .control-btn {
+            padding: 8px 12px; font-size: 0.85em; background: rgba(0, 255, 204, 0.2); color: #00ffcc;
+            border: 1px solid rgba(0, 255, 204, 0.3); border-radius: 5px; cursor: pointer; font-family: 'JetBrains Mono', monospace; transition: all 0.2s;
+        }
+        .control-btn:hover { background: rgba(0, 255, 204, 0.3); box-shadow: 0 0 10px rgba(0, 255, 204, 0.5); }
+        .api-notice {
+            background: rgba(255, 170, 0, 0.1); border: 1px solid rgba(255, 170, 0, 0.3); border-radius: 10px; padding: 15px; margin-bottom: 15px;
+            font-size: 0.95em; color: #a0a0a0;
+        }
+        .api-notice strong { color: #ffaa00; }
+        .api-notice code { background: rgba(0, 0, 0, 0.3); padding: 2px 6px; border-radius: 3px; color: #00ffcc; }
+        .api-notice a { color: #00a8ff; text-decoration: none; }
+        .api-notice a:hover { text-decoration: underline; }
+
+        /* Footer caption pinned to bottom */
+        .site-footer {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 10px;
+            text-align: center;
+            pointer-events: none;
+            color: #a0a0a0;
+            font-size: 0.95em;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.25);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <!-- Replace src with your logo path, e.g., /assets/logo.png -->
+            <div class="logo-wrapper">
+                <img src="/static/tgalogo.png" alt="TGA Logo" class="logo" />
+            </div>
+            <h1>⚛️ TGA CHEMQUEST: MOLECULAR ARENA</h1>
+            <p class="subtitle">AI-POWERED MOLECULAR VISUALIZATION SYSTEM</p>
+        </header>
+
+        <div class="search-section">
+
+            <div class="search-box">
+                <input type="text" id="molecule-input" placeholder="Enter molecule name (e.g., water, caffeine, ethanol)..." />
+                <button id="visualize-btn">Visualize</button>
+            </div>
+            <div class="examples">
+                <span style="color: #999; margin-right: 10px;">Try:</span>
+                <button class="example-btn" data-molecule="water">Water</button>
+                <button class="example-btn" data-molecule="caffeine">Caffeine</button>
+                <button class="example-btn" data-molecule="ethanol">Ethanol</button>
+                <button class="example-btn" data-molecule="glucose">Glucose</button>
+                <button class="example-btn" data-molecule="aspirin">Aspirin</button>
+                <button class="example-btn" data-molecule="benzene">Benzene</button>
+            </div>
+            <div class="error" id="error-message"></div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Generating molecular structure...</p>
+        </div>
+
+        <div class="content-grid" id="content-grid" style="display: none;">
+            <div class="panel">
+                <h2>3D Structure</h2>
+                <div id="canvas-container">
+                    <canvas id="molecule-canvas"></canvas>
+                    <div class="controls">
+                        <button class="control-btn" id="reset-view">Reset</button>
+                        <button class="control-btn" id="toggle-rotation">Rotate</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>Molecular Information</h2>
+                <div class="formula" id="formula"></div>
+                <div class="explanation" id="explanation"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer caption at the bottom -->
+    <footer class="site-footer">
+        Built by Ahmed Ansari, Grade 9, TGA
+    </footer>
+
+    <script>
+        // Canvas and drawing state
+        const canvas = document.getElementById('molecule-canvas');
+        const ctx = canvas.getContext('2d');
+        let moleculeData = null;
+        let rotation = { x: 0, y: 0 };
+        let isDragging = false;
+        let lastMouse = { x: 0, y: 0 };
+        let autoRotate = false;
+        let animationId = null;
+
+        // Visual settings
+        const atomColors = {
+            'H': '#ffffff','C': '#00ffcc','N': '#00a8ff','O': '#ff3250','F': '#90ff50','Cl': '#ffff00',
+            'Br': '#ff8000','I': '#ff00ff','P': '#ffa500','S': '#ffff30','B': '#ff69b4','default': '#ff1493'
+        };
+        const atomSizes = { 'H': 25,'C': 35,'N': 33,'O': 32,'F': 30,'Cl': 38,'default': 35 };
+
+        // Responsive canvas
+        function resizeCanvas() {
+            const container = document.getElementById('canvas-container');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            drawMolecule();
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Fetch structure JSON
+        async function getMoleculeStructure(moleculeName) {
+            const response = await fetch('/api/molecule', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: 'gpt-5-mini-2025-08-07',
+                    messages: [
+                        { role: 'system', content: 'You are a chemistry expert. Return ONLY valid JSON with molecular structure data. No markdown, no code blocks, just pure JSON.' },
+                        { role: 'user', content:
+`Provide the 3D molecular structure for ${moleculeName}. Return ONLY a JSON object (no markdown, no code blocks) with this exact format:
+{
+  "formula": "chemical formula",
+  "atoms": [
+    {"element": "C", "x": 0.0, "y": 0.0, "z": 0.0},
+    {"element": "H", "x": 1.0, "y": 0.0, "z": 0.0}
+  ],
+  "bonds": [
+    {"atom1": 0, "atom2": 1, "order": 1}
+  ]
+}
+Use realistic 3D coordinates in Angstroms. Include all atoms and bonds. atom1 and atom2 are indices into the atoms array. order is 1 for single, 2 for double, 3 for triple bonds.` }
+                    ],
+                    response_format: { type: "json_object" }
+                })
+            });
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(`API Error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
+            }
+            const data = await response.json();
+            const content = data?.choices?.[0]?.message?.content;
+            if (!content) throw new Error('Empty response from API.');
+            return JSON.parse(content);
+        }
+
+        // Fetch HTML explanation
+        async function getMoleculeExplanation(moleculeName, formula) {
+            const response = await fetch('/api/molecule', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: 'gpt-5-mini-2025-08-07',
+                    messages: [
+                        { role: 'user', content:
+`Provide a detailed but concise explanation of ${moleculeName} (${formula}). Include:
+- Molecular geometry and shape
+- Types of chemical bonds present
+- Polarity and why
+- 2-3 interesting facts about this molecule
+
+Format with HTML tags: <h3> for section headers, <p> for paragraphs. Be educational and engaging.` }
+                    ]
+                })
+            });
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(`API Error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
+            }
+            const data = await response.json();
+            const html = data?.choices?.[0]?.message?.content || '';
+            return html;
+        }
+
+        // 3D rotation
+        function rotatePoint(point, rotX, rotY) {
+            let { x, y, z } = point;
+            const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+            const x1 = x * cosY - z * sinY;
+            const z1 = x * sinY + z * cosY;
+            const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+            const y1 = y * cosX - z1 * sinX;
+            const z2 = y * sinX + z1 * cosX;
+            return { x: x1, y: y1, z: z2 };
+        }
+
+        // Perspective projection
+        function project(point) {
+            const scale = 100, distance = 500;
+            const factor = distance / (distance + point.z);
+            return { x: canvas.width / 2 + point.x * scale * factor, y: canvas.height / 2 + point.y * scale * factor, scale: factor };
+        }
+
+        // Draw molecule safely
+        function drawMolecule() {
+            // Background and subtle grid
+            ctx.fillStyle = '#0a0f23';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = 'rgba(0, 255, 204, 0.05)';
+            ctx.lineWidth = 1;
+            const gridSize = 30;
+            for (let x = 0; x < canvas.width; x += gridSize) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
+            for (let y = 0; y < canvas.height; y += gridSize) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
+
+            if (!moleculeData || !Array.isArray(moleculeData.atoms) || moleculeData.atoms.length === 0) return;
+
+            const rotatedAtoms = moleculeData.atoms.map(a => rotatePoint(a, rotation.x, rotation.y));
+            const projected = rotatedAtoms.map(a => project(a));
+            const indices = moleculeData.atoms.map((_, i) => i).sort((a, b) => rotatedAtoms[a].z - rotatedAtoms[b].z);
+
+            // Draw bonds with guards
+            const bonds = Array.isArray(moleculeData.bonds) ? moleculeData.bonds : [];
+            bonds.forEach(b => {
+                const a1 = projected[b.atom1];
+                const a2 = projected[b.atom2];
+                if (!a1 || !a2) return;
+                ctx.strokeStyle = 'rgba(0, 255, 204, 0.3)'; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(a1.x, a1.y); ctx.lineTo(a2.x, a2.y); ctx.stroke();
+                ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(a1.x, a1.y); ctx.lineTo(a2.x, a2.y); ctx.stroke();
+                const order = b.order || 1;
+                if (order > 1) {
+                    const dx = a2.x - a1.x, dy = a2.y - a1.y, len = Math.hypot(dx, dy) || 1;
+                    const offX = -dy / len * 5, offY = dx / len * 5;
+                    ctx.beginPath(); ctx.moveTo(a1.x + offX, a1.y + offY); ctx.lineTo(a2.x + offX, a2.y + offY); ctx.stroke();
+                    if (order === 3) { ctx.beginPath(); ctx.moveTo(a1.x - offX, a1.y - offY); ctx.lineTo(a2.x - offX, a2.y - offY); ctx.stroke(); }
+                }
+            });
+
+            // Draw atoms
+            indices.forEach(i => {
+                const atom = moleculeData.atoms[i], pos = projected[i], el = atom.element;
+                const radius = (atomSizes[el] || atomSizes.default) * pos.scale;
+                const color = atomColors[el] || atomColors.default;
+                ctx.shadowBlur = 20; ctx.shadowColor = color;
+                const grad = ctx.createRadialGradient(pos.x - radius * 0.3, pos.y - radius * 0.3, 0, pos.x, pos.y, radius);
+                grad.addColorStop(0, lightenColor(color, 60)); grad.addColorStop(0.7, color); grad.addColorStop(1, darkenColor(color, 30));
+                ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2); ctx.fill();
+                ctx.shadowBlur = 10; ctx.shadowColor = color; ctx.fillStyle = '#0a0e27';
+                ctx.font = `bold ${Math.max(10, radius * 0.7)}px 'JetBrains Mono', monospace`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(el, pos.x, pos.y); ctx.shadowBlur = 0;
+            });
+        }
+
+        function lightenColor(color, percent) {
+            const num = parseInt(color.replace('#', ''), 16), amt = Math.round(2.55 * percent);
+            const R = Math.min(255, (num >> 16) + amt), G = Math.min(255, (num >> 8 & 0x00FF) + amt), B = Math.min(255, (num & 0x0000FF) + amt);
+            return `#${(1 << 24 | R << 16 | G << 8 | B).toString(16).slice(1)}`;
+        }
+        function darkenColor(color, percent) {
+            const num = parseInt(color.replace('#', ''), 16), amt = Math.round(2.55 * percent);
+            const R = Math.max(0, (num >> 16) - amt), G = Math.max(0, (num >> 8 & 0x00FF) - amt), B = Math.max(0, (num & 0x0000FF) - amt);
+            return `#${(1 << 24 | R << 16 | G << 8 | B).toString(16).slice(1)}`;
+        }
+
+        // Animation loop
+        function animate() {
+            if (autoRotate) { rotation.y += 0.01; drawMolecule(); }
+            animationId = requestAnimationFrame(animate);
+        }
+        animate();
+
+        // Mouse interaction (fixed: remove odd TrueLike usage)
+        canvas.addEventListener('mousedown', e => {
+            isDragging = true;
+            lastMouse = { x: e.clientX, y: e.clientY };
+        });
+        canvas.addEventListener('mousemove', e => {
+            if (!isDragging) return;
+            const dx = e.clientX - lastMouse.x, dy = e.clientY - lastMouse.y;
+            rotation.y += dx * 0.01; rotation.x += dy * 0.01;
+            lastMouse = { x: e.clientX, y: e.clientY };
+            drawMolecule();
+        });
+        canvas.addEventListener('mouseup', () => { isDragging = false; });
+        canvas.addEventListener('mouseleave', () => { isDragging = false; });
+
+        // Controls
+        document.getElementById('reset-view').addEventListener('click', () => { rotation = { x: 0, y: 0 }; drawMolecule(); });
+        document.getElementById('toggle-rotation').addEventListener('click', () => {
+            autoRotate = !autoRotate;
+            document.getElementById('toggle-rotation').textContent = autoRotate ? 'Stop' : 'Rotate';
+        });
+
+        // Main flow
+        async function visualizeMolecule(moleculeName) {
+            const loading = document.getElementById('loading');
+            const contentGrid = document.getElementById('content-grid');
+            const errorDiv = document.getElementById('error-message');
+            const visualizeBtn = document.getElementById('visualize-btn');
+
+            loading.classList.add('active');
+            contentGrid.style.display = 'none';
+            errorDiv.classList.remove('active');
+            visualizeBtn.disabled = true;
+
+            try {
+                const structure = await getMoleculeStructure(moleculeName);
+                // Basic validation/normalization
+                structure.atoms = Array.isArray(structure.atoms) ? structure.atoms : [];
+                structure.bonds = Array.isArray(structure.bonds) ? structure.bonds : [];
+                moleculeData = structure;
+
+                const explanation = await getMoleculeExplanation(moleculeName, structure.formula || '');
+                document.getElementById('formula').textContent = structure.formula || '';
+                document.getElementById('explanation').innerHTML = explanation || '<p>No explanation available.</p>';
+
+                rotation = { x: 0.3, y: 0.3 };
+                drawMolecule();
+                contentGrid.style.display = 'grid';
+            } catch (error) {
+                console.error('Error:', error);
+                errorDiv.textContent = `Error: ${error.message}`;
+                errorDiv.classList.add('active');
+            } finally {
+                loading.classList.remove('active');
+                visualizeBtn.disabled = false;
+            }
+        }
+
+        // UI handlers
+        document.getElementById('visualize-btn').addEventListener('click', () => {
+            const moleculeName = document.getElementById('molecule-input').value.trim();
+            if (moleculeName) visualizeMolecule(moleculeName);
+        });
+        document.getElementById('molecule-input').addEventListener('keypress', e => {
+            if (e.key === 'Enter') {
+                const moleculeName = e.target.value.trim();
+                if (moleculeName) visualizeMolecule(moleculeName);
+            }
+        });
+        document.querySelectorAll('.example-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const molecule = btn.dataset.molecule;
+                document.getElementById('molecule-input').value = molecule;
+                visualizeMolecule(molecule);
+            });
+        });
+    </script>
+</body>
+</html>
